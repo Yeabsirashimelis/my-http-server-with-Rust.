@@ -1,16 +1,13 @@
-use std::net::TcpListener;
+use std::process;
+
+use http_server::run;
 
 fn main() {
-    let listener = TcpListener::bind("127.0.0.1:4221").unwrap();
-
-    for stream in listener.incoming() {
-        match stream {
-            Result::Ok(stream) => {
-                println!("accepted new connection");
-            }
-            Result::Err(error) => {
-                println!("error: {}", error);
-            }
+    match run() {
+        Result::Ok(_) => println!("server exited"),
+        Result::Err(error) => {
+            eprintln!("Error; {}", error);
+            process::exit(1); // not zero - means exited with error
         }
     }
 }
