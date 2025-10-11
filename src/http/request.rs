@@ -28,7 +28,7 @@ pub fn parse_raw_request(request_line: &str) -> Result<Request> {
     };
 
     let method = Method::from_str(method_str)?;
-    Ok(Request {
+    Result::Ok(Request {
         method,
         path,
         query_strings,
