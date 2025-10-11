@@ -1,0 +1,20 @@
+an HTTP request is made up of three parts, each separated by a CRLF (\r\n)
+ 1, request line
+ 2, zero or more headers, each ending with a CRLF 
+ 3, optional request body
+
+
+ pub struct BufReader<R> {
+    // ...
+}
+
+impl<R: Read> BufReader<R> {
+    pub fn new(inner: R) -> BufReader<R>
+}
+R can be any type that implements std::io::Read.
+    Common examples:
+    TcpStream → for reading network data
+    File → for reading from files
+    &[u8] → reading from in-memory byte slices
+    Vec<u8> → reading from a vector
+
