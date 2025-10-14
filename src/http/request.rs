@@ -19,7 +19,7 @@ pub struct Request {
     pub path: String,
     pub query_strings: HashMap<String, String>,
     pub headers: Vec<(String, String)>,
-    pub body: Vec<u8>,
+    pub body: Vec<u8>, //parsed to vector of bytes. user of this "http-server" should parse the data from the bytes him self.
 }
 
 pub fn parse_request_line(request_line: &str) -> Result<ParsedRequestLine> {

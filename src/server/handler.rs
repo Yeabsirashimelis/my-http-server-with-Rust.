@@ -13,22 +13,6 @@ pub fn handle_connection(stream: &mut std::net::TcpStream, router: &Router) -> R
     let request = build_request(&mut reader)?;
     println!("Parsed Request :- {:#?}", request);
 
-    let body_str = std::str::from_utf8(&request.body).context("Request body is not valid UTF-8")?;
-    println!("Request Body :- {:#?}", body_str);
-
-    /////////////////////////////////////////////////////////////////////////////
-
-    #[derive(Debug, Deserialize)]
-    struct Person {
-        name: String,
-        work: String,
-    }
-
-    let person: Person = serde_json::from_str(body_str)
-        .context("Failed to parse inner JSON as the  struct provided")?;
-    println!("Request Body :- {:#?}", person);
-    //////////////////////////////////////////////////////////////////
-
     let res = router.handle(&request);
 
     send_response(res, &mut stream).context("returning a response")?;

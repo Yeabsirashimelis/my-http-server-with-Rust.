@@ -21,6 +21,7 @@ impl Response {
                     "Content-Length".into(),
                     format!("{}", content_length).into(),
                 ),
+                ("Content-Encoding".into(), "gzip".into()),
             ]),
             body: body_bytes,
         }
