@@ -2,7 +2,7 @@ use super::method::Method;
 use anyhow::{Context, Result};
 use std::{
     collections::HashMap,
-    io::{BufReader, Lines},
+    io::{BufRead, BufReader, Lines, Read},
     net::TcpStream,
     vec,
 };
@@ -19,6 +19,7 @@ pub struct Request {
     pub path: String,
     pub query_strings: HashMap<String, String>,
     pub headers: Vec<(String, String)>,
+    pub body: Vec<u8>,
 }
 
 pub fn parse_request_line(request_line: &str) -> Result<ParsedRequestLine> {
@@ -49,11 +50,8 @@ pub fn parse_request_line(request_line: &str) -> Result<ParsedRequestLine> {
 }
 
 pub fn parse_headers(
-    mut request_iter: Lines<BufReader<&TcpStream>>,
+    request_iter: &mut Lines<&mut BufReader<&TcpStream>>,
 ) -> Result<Vec<(String, String)>> {
-    //jump the request line
-    let _ = request_iter.next().transpose()?.unwrap_or_default();
-
     let mut headers: Vec<(String, String)> = vec![];
 
     for line in request_iter {
@@ -71,17 +69,58 @@ pub fn parse_headers(
     Result::Ok(headers)
 }
 
-pub fn build_request(mut request_iter: Lines<BufReader<&TcpStream>>) -> Result<Request> {
-    let request_line = request_iter.next().transpose()?.unwrap_or_default();
-    println!("REQUEST_LINE : {}", request_line);
+pub fn parse_body(
+    reader: &mut BufReader<&TcpStream>,
+    method: Method,
+    headers: Vec<(String, String)>,
+) -> Result<Vec<u8>> {
+    if method == Method::GET {
+        return Result::Ok(vec![]);
+    }
 
+    // look for the content-length header
+    let content_length = headers
+        .iter()
+        .find(|(k, _)| k.eq_ignore_ascii_case("Content-length"))
+        .and_then(|(_, v)| v.parse::<usize>().ok())
+        .unwrap_or(0);
+
+    if content_length == 0 {
+        return Result::Ok(vec![]);
+    }
+
+    let mut body = vec![0u8; content_length];
+    reader
+        .read_exact(&mut body)
+        .context("Failed to read request body")?;
+
+    Result::Ok(body)
+}
+
+pub fn build_request(reader: &mut BufReader<&TcpStream>) -> Result<Request> {
+    let mut lines = reader.by_ref().lines();
+
+    //parse request line
+    let request_line = lines.next().transpose()?.unwrap_or_default();
+    println!("REQUEST_LINE : {}", request_line);
     let request_line_parsed = parse_request_line(&request_line)?;
-    let parsed_headers = parse_headers(request_iter)?;
+
+    // parse headers
+    let parsed_headers = parse_headers(&mut lines)?;
+
+    // parse body
+    let body = parse_body(
+        reader,
+        request_line_parsed.method.clone(),
+        parsed_headers.clone(),
+    )
+    .context("parsing the body")?;
 
     Result::Ok(Request {
         method: request_line_parsed.method,
         path: request_line_parsed.path,
         query_strings: request_line_parsed.query_strings,
         headers: parsed_headers,
+        body,
     })
 }
