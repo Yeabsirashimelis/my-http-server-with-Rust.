@@ -23,7 +23,7 @@ pub struct Request {
 
 pub fn parse_request_line(request_line: &str) -> Result<ParsedRequestLine> {
     let mut parts = request_line.split_whitespace();
-    let method_str = parts.next().context("Missing HTTP method")?;
+    let method_str = parts.next().unwrap_or("GET");
     let path_and_query = parts.next().unwrap_or("/");
 
     let (path, query_strings) = if let Some((p, q)) = path_and_query.split_once('?') {
