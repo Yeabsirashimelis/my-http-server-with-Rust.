@@ -22,6 +22,22 @@ pub struct Request {
     pub body: Vec<u8>, //parsed to vector of bytes. user of this "http-server" should parse the data from the bytes him self.
 }
 
+impl Request {
+    // Returns the first encoding listed in Accept-Encoding, if any
+    // and we use it as "Content-Encoding" header for encoding scheme for the body
+    pub fn first_accepted_encoding(&self) -> Option<String> {
+        let first_encoder = self
+            .headers
+            .iter()
+            .find(|(k, _)| k.eq_ignore_ascii_case("Accept-Encoding"))
+            .and_then(|(_, v)| v.split(',').map(|s| s.trim()).next())
+            .map(|s| s.to_string());
+        println!("ENCODER: {:?}", first_encoder);
+
+        first_encoder
+    }
+}
+
 pub fn parse_request_line(request_line: &str) -> Result<ParsedRequestLine> {
     let mut parts = request_line.split_whitespace();
     let method_str = parts.next().unwrap_or("GET");
