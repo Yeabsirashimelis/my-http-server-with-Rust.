@@ -4,6 +4,7 @@ use std::fmt::Display;
 pub enum HttpCode {
     Ok,
     NotFound,
+    InternalServerError,
 }
 
 impl Display for HttpCode {
@@ -11,6 +12,7 @@ impl Display for HttpCode {
         let (code, message) = match self {
             Self::Ok => (200, "OK"),
             Self::NotFound => (404, "Not Found"),
+            Self::InternalServerError => (500, "Internal Server Error"),
         };
         write!(f, "{} {}", code, message)
     }
