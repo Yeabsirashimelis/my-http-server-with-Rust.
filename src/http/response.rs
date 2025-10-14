@@ -1,6 +1,4 @@
 use crate::HttpCode;
-use anyhow::{Context, Result};
-use std::{io::Write, net::TcpStream};
 
 #[derive(Debug)]
 pub struct Response {
@@ -13,7 +11,7 @@ impl Response {
     pub fn new(code: HttpCode, body: impl Into<String>) -> Self {
         Self {
             code,
-            headers: vec![],
+            headers: vec![(String::from("name"), String::from("my-http-server"))],
             body: body.into(),
         }
     }
@@ -25,7 +23,7 @@ impl Response {
             self.headers
                 .iter()
                 .map(|(k, v)| format!("{}: {}", k, v))
-                .collect::<Vec<(String)>>()
+                .collect::<Vec<String>>()
                 .join("\r\n"),
             self.body
         )
