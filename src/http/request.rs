@@ -23,18 +23,10 @@ pub struct Request {
 }
 
 impl Request {
-    // Returns the first encoding listed in Accept-Encoding, if any
-    // and we use it as "Content-Encoding" header for encoding scheme for the body
-    pub fn first_accepted_encoding(&self) -> Option<String> {
-        let first_encoder = self
-            .headers
-            .iter()
-            .find(|(k, _)| k.eq_ignore_ascii_case("Accept-Encoding"))
-            .and_then(|(_, v)| v.split(',').map(|s| s.trim()).next())
-            .map(|s| s.to_string());
-        println!("ENCODER: {:?}", first_encoder);
-
-        first_encoder
+    pub fn accepts_gzip(headers: &Vec<(String, String)>) -> bool {
+        headers.iter().any(|(key, value)| {
+            key.eq_ignore_ascii_case("Accept-Encoding") && value.contains("gzip")
+        })
     }
 }
 
