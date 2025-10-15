@@ -35,19 +35,38 @@ fn apply_content_encoding(mut res: Response, req: &Request) -> Response {
 }
 
 pub fn handle_connection(stream: &mut std::net::TcpStream, router: &Router) -> Result<()> {
-    let mut stream = stream.try_clone().context("getting the stream")?;
-    let mut reader = BufReader::new(&stream);
+    let mut reader = BufReader::new(stream);
 
-    // let lines_iter = reader.lines();
+    //use loop for persistence connections - use one thread (TCP-stream) for many incoming requests unless the req-header says so
+    loop {
+        let request = build_request(&mut reader)?;
+        println!("Parsed Request :- {:#?}", request);
 
-    let request = build_request(&mut reader)?;
-    println!("Parsed Request :- {:#?}", request);
+        let route_res: Response = router.handle(&request);
+        let mut res = apply_content_encoding(route_res, &request);
+        println!("FINAL RESPONSE: {:#?}", res);
 
-    let route_res: Response = router.handle(&request);
-    let res = apply_content_encoding(route_res, &request);
-    println!("FINAL RESPONSE: {:#?}", res);
+        //default to "keep-alive"
+        let connection_header = request
+            .headers
+            .iter()
+            .find(|(key, _)| key.eq_ignore_ascii_case("Connection"))
+            .map(|(_, value)| value.to_lowercase())
+            .unwrap_or_else(|| "keep-alive".to_string());
 
-    send_response(res, &mut stream).context("returning a response")?;
+        if connection_header == "close" {
+            res.headers
+                .insert("Connection".to_string(), "close".to_string());
+            send_response(res, &mut reader.get_mut()).context("returning a response")?;
+            break;
+        } else {
+            res.headers
+                .insert("Connection".to_string(), "keep-alive".to_string());
+            // reader.get_mut() gives you back the underlying TcpStream for writing.
+            send_response(res, &mut reader.get_mut()).context("returning a response")?;
+        }
 
+        // send_response(res, &mut stream).context("returning a response")?;
+    }
     Ok(())
 }

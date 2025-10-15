@@ -58,7 +58,7 @@ pub fn parse_request_line(request_line: &str) -> Result<ParsedRequestLine> {
 }
 
 pub fn parse_headers(
-    request_iter: &mut Lines<&mut BufReader<&TcpStream>>,
+    request_iter: &mut Lines<&mut BufReader<&mut TcpStream>>,
 ) -> Result<Vec<(String, String)>> {
     let mut headers: Vec<(String, String)> = vec![];
 
@@ -78,7 +78,7 @@ pub fn parse_headers(
 }
 
 pub fn parse_body(
-    reader: &mut BufReader<&TcpStream>,
+    reader: &mut BufReader<&mut TcpStream>,
     method: Method,
     headers: Vec<(String, String)>,
 ) -> Result<Vec<u8>> {
@@ -105,7 +105,7 @@ pub fn parse_body(
     Result::Ok(body)
 }
 
-pub fn build_request(reader: &mut BufReader<&TcpStream>) -> Result<Request> {
+pub fn build_request(reader: &mut BufReader<&mut TcpStream>) -> Result<Request> {
     let mut lines = reader.by_ref().lines();
 
     //parse request line

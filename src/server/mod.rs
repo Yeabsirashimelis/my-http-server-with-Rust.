@@ -64,7 +64,7 @@ pub fn run() -> Result<()> {
     let listener = TcpListener::bind("127.0.0.1:4221")?;
     println!("Server running on http://127.0.0.1:4221");
 
-    let pool = ThreadPool::new(100);
+    let pool = ThreadPool::new(500);
 
     let router = Arc::new(router);
 
