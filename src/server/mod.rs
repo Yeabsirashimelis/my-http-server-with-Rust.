@@ -70,7 +70,9 @@ pub fn run() -> Result<()> {
     });
 
     router.put("/user/:id", |req, params| {
-        let id = params.get("id").unwrap_or(&"unknown".to_string());
+        let unknown = String::from("unknown");
+
+        let id = params.get("id").unwrap_or(&unknown);
         let body = String::from_utf8_lossy(&req.body);
         Response::new(
             HttpCode::Ok,
@@ -79,7 +81,9 @@ pub fn run() -> Result<()> {
     });
 
     router.delete("/user/:id", |_, params| {
-        let id = params.get("id").unwrap_or(&"unknown".to_string());
+        let unknown = String::from("unknown");
+
+        let id = params.get("id").unwrap_or(&unknown);
         Response::new(HttpCode::Ok, format!("User {} deleted", id))
     });
 

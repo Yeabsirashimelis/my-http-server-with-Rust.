@@ -5,6 +5,7 @@ pub enum HttpCode {
     Ok,
     NotFound,
     InternalServerError,
+    Created,
 }
 
 impl Display for HttpCode {
@@ -13,6 +14,7 @@ impl Display for HttpCode {
             Self::Ok => (200, "OK"),
             Self::NotFound => (404, "Not Found"),
             Self::InternalServerError => (500, "Internal Server Error"),
+            Self::Created => (201, "Created"),
         };
         write!(f, "{} {}", code, message)
     }
