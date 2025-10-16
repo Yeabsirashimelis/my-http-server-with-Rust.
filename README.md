@@ -110,23 +110,4 @@ This project demonstrates:
 
 Yeabsira Shimelis
 
-Built with ❤️ and Rust 🦀
-
-- Low-level TCP handling in Rust
-- HTTP request/response parsing
-- Designing a thread pool for concurrency
-- Connection persistence and graceful shutdown
-- Compression and header management
-- Simple routing with dynamic parameters
-
-## Future improvements
-
-- Add middleware support and static file serving
-- Implement request pipelining and async I/O (e.g. using Tokio)
-- Improve router capabilities (better parameter parsing, middleware, etc.)
-
-## Author
-
-Yeabsira Shimelis
-
-Built with ❤️ and Rust 🦀
+  Built with Rust 🦀
