@@ -61,6 +61,28 @@ pub fn run() -> Result<()> {
         resp
     });
 
+    router.post("/user", |req, _| {
+        let body = String::from_utf8_lossy(&req.body);
+        Response::new(
+            HttpCode::Created,
+            format!("User created with data: {}", body),
+        )
+    });
+
+    router.put("/user/:id", |req, params| {
+        let id = params.get("id").unwrap_or(&"unknown".to_string());
+        let body = String::from_utf8_lossy(&req.body);
+        Response::new(
+            HttpCode::Ok,
+            format!("User {} updated with data: {}", id, body),
+        )
+    });
+
+    router.delete("/user/:id", |_, params| {
+        let id = params.get("id").unwrap_or(&"unknown".to_string());
+        Response::new(HttpCode::Ok, format!("User {} deleted", id))
+    });
+
     let listener = TcpListener::bind("127.0.0.1:4221")?;
     println!("Server running on http://127.0.0.1:4221");
 
